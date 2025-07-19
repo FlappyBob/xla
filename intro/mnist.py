@@ -6,45 +6,13 @@ import torch_xla.core.xla_model as xm
 import torchvision
 import torchvision.transforms as transforms
 
-# Define a simple Convolutional Neural Network (CNN) for MNIST
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, 3, 1) # Input channels: 1 (for grayscale MNIST)
-        self.relu1 = nn.ReLU()
-        self.conv2 = nn.Conv2d(32, 64, 3, 1)
-        self.relu2 = nn.ReLU()
-        self.pool = nn.MaxPool2d(2)
-        self.dropout1 = nn.Dropout(0.25)
-        self.fc1 = nn.Linear(9216, 128) # (64 * 6 * 6) after convolutions and pooling
-        self.relu3 = nn.ReLU()
-        self.dropout2 = nn.Dropout(0.5)
-        self.fc2 = nn.Linear(128, 10) # Output classes: 10 (for MNIST digits 0-9)
-        self.log_softmax = nn.LogSoftmax(dim=1)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.relu1(x)
-        x = self.conv2(x)
-        x = self.relu2(x)
-        x = self.pool(x)
-        x = self.dropout1(x)
-        x = torch.flatten(x, 1) # Flatten the tensor for the fully connected layers
-        x = self.fc1(x)
-        x = self.relu3(x)
-        x = self.dropout2(x)
-        x = self.fc2(x)
-        output = self.log_softmax(x)
-        return output
+from mnist import Net
 
 # --- Hyperparameters ---
 lr = 0.01
 momentum = 0.9
 batch_size = 64
-epochs = 5 # Number of training epochs
-
-# --- XLA Device Setup ---
-device = xm.xla_device()
+epochs = 5
 
 # --- Data Loading and Preprocessing ---
 transform = transforms.Compose([
@@ -68,8 +36,16 @@ test_loader = torch.utils.data.DataLoader(
     test_dataset, batch_size=batch_size, shuffle=False, num_workers=4
 )
 
-# --- Model, Optimizer, and Loss Function Initialization ---
-model = Net().to(device) # Instantiate your defined CNN and move it to the XLA device
+
+device = torch.device("cpu")
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+if xm.xla_device():
+    device = xm.xla_device()
+
+print(f"Using device: {device}")
+
+model = Net().train().to(device) 
 optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)
 loss_fn = nn.NLLLoss()
 
