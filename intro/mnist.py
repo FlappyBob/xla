@@ -10,9 +10,9 @@ from tqdm.auto import tqdm # Import tqdm for progress bars
 from model import Net
 
 # --- Hyperparameters ---
-lr = 0.01
+lr = 1e-2
 momentum = 0.9
-batch_size = 128
+batch_size = 256
 epochs = 5
 print_interval = 100 # Print detailed loss every N batches
 
