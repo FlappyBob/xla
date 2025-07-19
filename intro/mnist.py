@@ -14,7 +14,6 @@ lr = 1e-2
 momentum = 0.9
 batch_size = 256
 epochs = 5
-print_interval = 100 # Print detailed loss every N batches
 
 # --- Data Loading and Preprocessing ---
 transform = transforms.Compose([
@@ -91,14 +90,7 @@ for epoch in range(1, epochs + 1):
         # Update tqdm postfix with current loss
         train_bar.set_postfix(loss=f"{current_loss:.4f}")
 
-        # You can still print periodically for more detailed logs
-        if (batch_idx + 1) % print_interval == 0:
-            print(f"Epoch: {epoch}/{epochs}, Batch: {batch_idx+1}/{len(train_loader)}, Loss: {current_loss:.4f}")
-
-    avg_epoch_loss = running_loss / len(train_loader)
-    print(f"Epoch {epoch} finished. Average Loss: {avg_epoch_loss:.4f}")
-
-print("Training complete!")
+print("Complete")
 
 # You can add evaluation on the test set here if needed
 # For example:
