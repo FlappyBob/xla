@@ -80,7 +80,7 @@ for epoch in range(1, epochs + 1):
         loss = loss_fn(output, target)
         loss.backward()
 
-        optimizer.step(optimizer)
+        optimizer.step()
         xm.mark_step()
         # Accumulate loss (this is a device-to-host transfer if loss is on XLA)
         # For XLA, it's better to accumulate on device and reduce later if possible
