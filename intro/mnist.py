@@ -12,7 +12,7 @@ from model import Net
 # --- Hyperparameters ---
 lr = 0.01
 momentum = 0.9
-batch_size = 64
+batch_size = 128
 epochs = 5
 print_interval = 100 # Print detailed loss every N batches
 
@@ -40,21 +40,21 @@ test_loader = torch.utils.data.DataLoader(
 
 # --- Device Selection ---
 device = torch.device("cpu")
-# if torch.cuda.is_available():
-#     device = torch.device("cuda")
-# try:
-#     # Try to get an XLA device first (most robust way)
-#     xla_device = xm.xla_device()
-#     device = xla_device
-#     print("XLA device detected.")
-# except Exception:
-#     # If XLA is not available, then the device remains 'cuda' (if available) or 'cpu'
-#     if device.type == 'cuda':
-#         print("CUDA (GPU) device detected.")
-#     else:
-#         print("No CUDA or XLA device found, falling back to CPU.")
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+try:
+    # Try to get an XLA device first (most robust way)
+    xla_device = xm.xla_device()
+    device = xla_device
+    print("XLA device detected.")
+except Exception:
+    # If XLA is not available, then the device remains 'cuda' (if available) or 'cpu'
+    if device.type == 'cuda':
+        print("CUDA (GPU) device detected.")
+    else:
+        print("No CUDA or XLA device found, falling back to CPU.")
 
-# print(f"Using device: {device}")
+print(f"Using device: {device}")
 
 # --- Model, Optimizer, and Loss Function Initialization ---
 model = Net().train().to(device)
@@ -80,8 +80,8 @@ for epoch in range(1, epochs + 1):
         loss = loss_fn(output, target)
         loss.backward()
 
-        xm.optimizer_step(optimizer)
-
+        optimizer.step(optimizer)
+        xm.mark_step()
         # Accumulate loss (this is a device-to-host transfer if loss is on XLA)
         # For XLA, it's better to accumulate on device and reduce later if possible
         # but for simple scalar loss, .item() is common.
