@@ -1,0 +1,4 @@
+torch~=2.5.0
+torch_xla[tpu]~=2.5.0
+torchvision
+tqdm
