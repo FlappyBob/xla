@@ -40,21 +40,21 @@ test_loader = torch.utils.data.DataLoader(
 
 # --- Device Selection ---
 device = torch.device("cpu")
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-try:
-    # Try to get an XLA device first (most robust way)
-    xla_device = xm.xla_device()
-    device = xla_device
-    print("XLA device detected.")
-except Exception:
-    # If XLA is not available, then the device remains 'cuda' (if available) or 'cpu'
-    if device.type == 'cuda':
-        print("CUDA (GPU) device detected.")
-    else:
-        print("No CUDA or XLA device found, falling back to CPU.")
+# if torch.cuda.is_available():
+#     device = torch.device("cuda")
+# try:
+#     # Try to get an XLA device first (most robust way)
+#     xla_device = xm.xla_device()
+#     device = xla_device
+#     print("XLA device detected.")
+# except Exception:
+#     # If XLA is not available, then the device remains 'cuda' (if available) or 'cpu'
+#     if device.type == 'cuda':
+#         print("CUDA (GPU) device detected.")
+#     else:
+#         print("No CUDA or XLA device found, falling back to CPU.")
 
-print(f"Using device: {device}")
+# print(f"Using device: {device}")
 
 # --- Model, Optimizer, and Loss Function Initialization ---
 model = Net().train().to(device)
